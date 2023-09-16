@@ -7,8 +7,9 @@ class User(AbstractUser):
 class Listing(models.Model):
     title = models.CharField(max_length=24)
     description = models.CharField(max_length=64)
-    startingbid = models.IntegerField()
+    startingprice = models.IntegerField()
     imagename = models.CharField(max_length=255)
+    categoryname = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
 
     def __str__(self):

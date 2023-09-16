@@ -20,19 +20,27 @@
                   <span class="input-group-text">$</span>
                   <span class="input-group-text">0.00</span>
                 </div>
-                <input type="text" name="startingbid" placeholder="Starting Bid" class="form-control" aria-label="Dollar amount (with dot and two decimal places)">
+                <input type="text" name="startingprice" placeholder="Starting Bid" class="form-control" aria-label="Dollar amount (with dot and two decimal places)">
             </div>
             <div class="input-group mb-3">
             <div class="input-group-prepend">
-                <label class="input-group-text" for="inputGroupSelect01">Images</label>
+                <label class="input-group-text" for="inputGroupSelect01">Categories</label>
             </div>
-            <select class="custom-select" name="imagename">
-                <option selected>Choose Image...</option>
-                <option value="Hello.png">Hello</option>
-                <option value="Tech.png">Tech</option>
-                <option value="Accessories.png">Accessories</option>
-                <option value="noimage.png">No image</option>
+            <select class="custom-select" name="categoryname">
+                <option selected>Choose Category...</option>
+                <option value="Hello">Hello</option>
+                <option value="Tech">Tech</option>
+                <option value="Accessoriesng">Accessories</option>
+                <option value="noimage">No category</option>
             </select>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input type="checkbox" name="imagename" placeholder="Add image for chosen cateogory">
+                </div>
+              </div>
+              <input type="text" class="form-control" placeholder="Select to add image for chosen cateogory" readonly>
+            </div>
             </div>
             <div class="input-group-append">
                 <input type="submit" value="Publish" class="btn btn-primary">

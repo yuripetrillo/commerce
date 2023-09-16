@@ -70,11 +70,16 @@ def newlisting(request):
                     "username": request.user,
                 })
     elif request.method == "POST":
+        if request.POST.get("imagename") is not None:
+            imagename=request.POST.get("categoryname")+".png"
+        else:
+            imagename="noimage.png"
         listing = Listing(
             user=User.objects.get(username=request.POST.get("user")),
             title=request.POST.get("title"), 
             description=request.POST.get("description"), 
-            startingbid=request.POST.get("startingbid"), 
-            imagename=request.POST.get("imagename"))
+            startingprice=request.POST.get("startingprice"), 
+            categoryname=request.POST.get("categoryname"),
+            imagename=imagename)
         listing.save()
         return HttpResponseRedirect(reverse("index"))
