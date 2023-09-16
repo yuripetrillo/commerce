@@ -1,62 +1,21 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-    <div>{{ username }}</div>
+    <div class="text-center justify-content-center">
+        <h2>Active Listings</h2>
+        <br>
+    </div>
     {% load static %}
     <div class="row justify-content-center">
     {% for listing in listings %}
-    {% if listing.imagename|length < 3%}
-    <div class="card bg-light mx-3 mb-3" style="width: 18rem;">
-        <img class="card-img-top" src="{% static 'images/noimage.png' %}" alt="Listing No Image">
-        <div class="card-body align-items-center text-center">
-            <h5 class="card-title">
-                <div class="input-group-prepend">
-                    <span class="input-group-text list-group-item list-group-item-action list-group-item-primary" id="inputGroup-sizing-lg">Title:  <a href="{% url 'index' %}">{{ listing.title }}</a></span>
-                </div>
-            </h5>
-        <div class="input-group input-group-sm mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="inputGroup-sizing-sm">Description:</span>
-            </div>
-            <input type="text" class="form-control" value="{{ listing.description }}" aria-describedby="inputGroup-sizing-sm" readonly>
-        </div>
-        <div class="input-group input-group-sm mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-sm">Starting bid:</span>
-            </div>
-            <input type="text" class="form-control" value="{{ listing.startingprice }}" aria-describedby="inputGroup-sizing-sm" readonly>
-        </div>
-        <div class="input-group input-group-sm mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-sm">Category:</span>
-            </div>
-              <input type="text" class="form-control" value="{{ listing.categoryname }}" aria-describedby="inputGroup-sizing-sm" readonly>
-        </div>
-            <div class="input-group input-group-sm mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="inputGroup-sizing-sm">Owner:</span>
-                </div>
-                  <input type="text" class="form-control" value="{{ listing.user }}" aria-describedby="inputGroup-sizing-sm" readonly>
-            </div>
-        <a href="#" class="btn btn-primary">Place a Bid</a>
-        </div>
-    </div>   
-    {% else %}
     <div class="card bg-light mx-3 mb-3" style="width: 18rem;">
         <img class="card-img-top" src="{% static 'images/'|add:listing.imagename' %}" alt="Listing Image">
             <div class="card-body align-items-center text-center">
             <h5 class="card-title">
                 <div class="input-group-prepend">
-                    <span class="input-group-text list-group-item list-group-item-action list-group-item-primary" id="inputGroup-sizing-lg">Title:  <a href="{% url 'index' %}">{{ listing.title }}</a></span>
+                    <span class="input-group-text list-group-item list-group-item-action list-group-item-primary" id="inputGroup-sizing-lg">Title:  <a href="{% url 'listingpage' listing.id %}">{{ listing.title }}</a></span>
                 </div>
             </h5>
-
-            
-
-
-
-
             <div class="input-group input-group-sm mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="inputGroup-sizing-sm">Description:</span>
@@ -67,7 +26,7 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-sm">Starting bid:</span>
                 </div>
-                <input type="text" class="form-control" value="{{ listing.startingprice }}" aria-describedby="inputGroup-sizing-sm" readonly>
+                <input type="text" class="form-control" value="$ {{ listing.startingprice }}.00" aria-describedby="inputGroup-sizing-sm" readonly>
             </div>
             <div class="input-group input-group-sm mb-3">
                 <div class="input-group-prepend">
@@ -81,10 +40,9 @@
                     </div>
                       <input type="text" class="form-control" value="{{ listing.user }}" aria-describedby="inputGroup-sizing-sm" readonly>
                 </div>
-            <a href="#" class="btn btn-primary">Place a Bid</a>
+                <a href="{% url 'listingpage' listing.id %}" class="btn btn-primary">Go to bidding page</a>
             </div>
         </div>
-    {% endif %}
     {% endfor %}
     </div>
 {% endblock %}

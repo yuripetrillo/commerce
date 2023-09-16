@@ -5,6 +5,7 @@ class User(AbstractUser):
     pass
 
 class Listing(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=24)
     description = models.CharField(max_length=64)
     startingprice = models.IntegerField()
@@ -14,15 +15,25 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.startingprice})"
-    
     pass
 
-class Bids:
-    def __init__(self, amount):
-        self.amount = amount
+class Bid(models.Model):
+    id = models.AutoField(primary_key=True)
+    amount = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='bidder')
+    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING, related_name='item')
     pass
 
-class Comment:
-    def __init__(self, content):
-        self.content = content
+class Comment(models.Model):
+    id = models.AutoField(primary_key=True)
+    content = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='commenter')
+    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING, related_name='itemCommented')
+    pass
+
+class Watchlist(models.Model):
+    id = models.AutoField(primary_key=True)
+    isactive = models.BooleanField()
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='watchlister')
+    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING, related_name='itemWatchlist')
     pass
