@@ -22,18 +22,19 @@ class Bid(models.Model):
     id = models.AutoField(primary_key=True)
     amount = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='bidder')
-    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING, related_name='item')
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='item')
     pass
 
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)
     content = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='commenter')
-    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING, related_name='itemCommented')
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='itemCommented')
+    timestamp = models.DateTimeField(blank=True, null=True)
     pass
 
 class Watchlist(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='watchlister')
-    listing = models.ForeignKey(Listing, on_delete=models.DO_NOTHING, related_name='itemWatchlist')
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='itemWatchlist')
     pass

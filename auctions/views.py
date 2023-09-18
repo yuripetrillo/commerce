@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from datetime import datetime
+
 
 
 from .models import User,Listing, Bid, Watchlist, Comment
@@ -78,13 +80,13 @@ def newlisting(request):
             imagename=request.POST.get("categoryname")+".png"
         else:
             imagename="noimage.png"
-            listing = Listing(
-            user=User.objects.get(username=request.POST.get("user")),
-            title=request.POST.get("title"), 
-            description=request.POST.get("description"), 
-            startingprice=request.POST.get("startingprice"), 
-            categoryname=request.POST.get("categoryname"),
-            imagename=imagename)
+        listing = Listing(
+        user=User.objects.get(username=request.POST.get("user")),
+        title=request.POST.get("title"), 
+        description=request.POST.get("description"), 
+        startingprice=request.POST.get("startingprice"), 
+        categoryname=request.POST.get("categoryname"),
+        imagename=imagename)
         listing.save()
         return HttpResponseRedirect(reverse("index"))
     
@@ -97,8 +99,14 @@ def listing(request, listing_id):
             bids = None
     if request.user.is_authenticated:
         if request.method != "POST":
-            listing = Listing.objects.get(pk=listing_id)
+            try:
+                listing = Listing.objects.get(pk=listing_id)
+            except ObjectDoesNotExist:
+                return HttpResponse("Listing not found.")
+            
             user = User.objects.get(username=request.user)
+            comments = Comment.objects.all().filter(listing=listing_id)
+            commentsCount = comments.count()
             isOwner = False
             if listing.user.username == user.username:
                 isOwner = True
@@ -119,7 +127,9 @@ def listing(request, listing_id):
                     "bids": bids,
                     "actualprice": maximum,
                     "isWatching": isactive,
-                    "isOwner": isOwner
+                    "isOwner": isOwner,
+                    "comments": comments,
+                    "commentsCount": commentsCount
 
                 })
         if request.method == "POST":
@@ -182,5 +192,38 @@ def closeListing(request, listing_id):
                 return HttpResponseRedirect(reverse('listingpage', kwargs={'listing_id':listing_id}))
             except ObjectDoesNotExist:
                          return HttpResponse("Listing not found.")
+    else:
+        return HttpResponseRedirect(reverse("login"))
+    
+@login_required
+def comment(request, listing_id):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            newComment = Comment(
+            user=User.objects.get(username=request.user),
+            listing=Listing.objects.get(pk=listing_id),
+            content=request.POST.get("content"),
+            timestamp=datetime.now())
+            newComment.save()
+            return HttpResponseRedirect(reverse('listingpage', kwargs={'listing_id':listing_id}))
+        else:
+            return HttpResponse("Operation not permitted.")
+    else:
+        return HttpResponseRedirect(reverse("login"))
+    
+@login_required
+def categories(request):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            try:
+                listingsByCategory=Listing.objects.all().filter(categoryname=request.POST.get("category"))
+                if listingsByCategory is not None:
+                    return render(request, "auctions/categories.html", {
+                    "listingsByCategory": listingsByCategory
+                    })
+            except ObjectDoesNotExist:
+                return HttpResponse("No listing found.")
+        else:
+            return render(request, "auctions/categories.html")
     else:
         return HttpResponseRedirect(reverse("login"))

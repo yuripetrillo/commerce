@@ -1,0 +1,69 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% load static %}
+  <div class="card mb-5" id="filterSection">
+  <div class="card-body">
+  <div class="d-flex flex-start justify-content-center">
+    <form method="POST" action="{% url 'categories' %}">
+      <div class="list-group">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">Categories</label>
+          </div>
+            {% csrf_token %}
+          <select class="custom-select" name="category">
+              <option selected>Filter listings by category...</option>
+              <option value="Hello">Hello</option>
+              <option value="Tech">Tech</option>
+              <option value="Accessories">Accessories</option>
+              <option value="noimage">No category</option>
+          </select>
+          </div>
+          <input type="submit" value="Filter" class="btn btn-warning">
+        </form>
+        </div>
+      </div>
+    </div>
+        <br>
+      <div class="row justify-content-center">
+        {% for listing in listingsByCategory %}
+        <div class="card bg-light mx-3 mb-3" style="width: 18rem;">
+          <img class="card-img-top" src="{% static 'images/'|add:listing.imagename' %}" alt="Listing Image">
+              <div class="card-body align-items-center text-center">
+              <h5 class="card-title">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text list-group-item list-group-item-action list-group-item-primary" id="inputGroup-sizing-lg">Title:  <a href="{% url 'listingpage' listing.id %}">{{ listing.title }}</a></span>
+                  </div>
+              </h5>
+              <div class="input-group input-group-sm mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Description:</span>
+                  </div>
+                  <input type="text" class="form-control" value="{{ listing.description }}" aria-describedby="inputGroup-sizing-sm" readonly>
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-sm">Starting bid:</span>
+                  </div>
+                  <input type="text" class="form-control" value="$ {{ listing.startingprice }}.00" aria-describedby="inputGroup-sizing-sm" readonly>
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-sm">Category:</span>
+                  </div>
+                    <input type="text" class="form-control" value="{{ listing.categoryname }}" aria-describedby="inputGroup-sizing-sm" readonly>
+              </div>
+                  <div class="input-group input-group-sm mb-3">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text" id="inputGroup-sizing-sm">Owner:</span>
+                      </div>
+                        <input type="text" class="form-control" value="{{ listing.user }}" aria-describedby="inputGroup-sizing-sm" readonly>
+                  </div>
+                  <a href="{% url 'listingpage' listing.id %}" class="btn btn-primary">Go to bidding page</a>
+              </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+{% endblock %}

@@ -7,7 +7,7 @@
         <a href="{% url 'listingpage' item.listing.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1 text-primary">{{ item.listing.title }}</h5>
-            <small>{{item.user.username}}</small>
+            <span class="badge badge-primary">By {{item.listing.user.username}}</span>
           </div>
           <p class="mb-1">{{item.listing.description}}</p>
           <span class="input-group-prepend">Starting price: ${{item.listing.startingprice}}<span class="input-group-append">.00</span></span>
