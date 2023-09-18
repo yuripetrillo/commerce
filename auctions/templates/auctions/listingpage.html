@@ -1,7 +1,6 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-{{isWatching}}
     {% load static %}
     <div class="row justify-content-center">
       <div class="jumbotron">
@@ -9,18 +8,35 @@
         <span class="badge badge-secondary"> 
           <span class="input-group-prepend">Starting price: ${{listing.startingprice}}<span class="input-group-append">.00</span></span>
           <span class="input-group-prepend">Actual highest offer: ${{actualprice}}<span class="input-group-append">.00</span></span>
-      </span>
+        </span>
       </div>
+      {% if listing.winner is not None %}
+      <div class="text-center">
+        <h3>Auction closed. <br>Winner is: <span class="badge badge-success">{{ listing.winner }}</span></h3>
+      </div>
+      {% endif %}
       <div class="text-right">
-        {% if not isWatching %}
-          <form method="POST" action="{% url 'listingpage' listing.id %}">
+        {% if isOwner and listing.winner is None %}
+          <form method="POST" action="{% url 'closeListing' listing.id %}">
             {% csrf_token %}
-            <input type="submit" value="Add to watchlist" name="status" class="btn btn-secondary btn-sm">
+            <span class="badge">
+              <input type="submit" value="Close this listing" name="closing" class="btn btn-danger btn-sm">
+            </span>
           </form>
-        {% else %}
+        {% endif %}
+        {% if not isWatching and listing.winner is None %}
           <form method="POST" action="{% url 'listingpage' listing.id %}">
             {% csrf_token %}
-            <input type="submit" value="Remove from watchlist" name="status" class="btn btn-secondary btn-sm">
+            <span class="badge">
+              <input type="submit" value="Add to watchlist" name="status" class="btn btn-secondary btn-sm">
+            </span>
+          </form>
+        {% elif isWatching and listing.winner is None %}
+          <form method="POST" action="{% url 'listingpage' listing.id %}">
+            {% csrf_token %}
+            <span class="badge">
+              <input type="submit" value="Remove from watchlist" name="status" class="btn btn-secondary btn-sm">
+            </span>
           </form>
         {% endif %}
       </div>
@@ -35,13 +51,21 @@
           <div class="input-group-prepend">
             <span class="input-group-text">$</span>
           </div>
+          {% if listing.winner is None %}
           <input type="number" name="amount" class="form-control" aria-label="Amount (to the nearest dollar)" min="{{actualprice}}" required>
+          {% else %}
+          <input type="number" name="amount" class="form-control" aria-label="Amount (to the nearest dollar)" min="{{actualprice}}" readonly>
+          {% endif %}
           <div class="input-group-append">
             <span class="input-group-text">.00</span>
           </div>
         </div>
         <div class="input-group-append">
-          <input type="submit" value="Place a bid" class="btn btn-primary">
+          {% if listing.winner is None %}
+            <input type="submit" value="Place a bid" class="btn btn-primary">
+          {% else %}
+            <input type="submit" value="Place a bid" class="btn btn-primary" disabled>
+          {% endif %}
       </div>
       </form>
       <br>

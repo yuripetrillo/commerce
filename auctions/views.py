@@ -99,10 +99,14 @@ def listing(request, listing_id):
         if request.method != "POST":
             listing = Listing.objects.get(pk=listing_id)
             user = User.objects.get(username=request.user)
+            isOwner = False
+            if listing.user.username == user.username:
+                isOwner = True
             isactive = False
             try:
                 watch = Watchlist.objects.get(user=user.pk, listing=listing_id)
-                isactive = watch.isactive
+                if watch is not None:
+                    isactive = True
             except ObjectDoesNotExist:
                 watch = None
 
@@ -114,7 +118,8 @@ def listing(request, listing_id):
                     "listing": listing,
                     "bids": bids,
                     "actualprice": maximum,
-                    "isWatching": isactive
+                    "isWatching": isactive,
+                    "isOwner": isOwner
 
                 })
         if request.method == "POST":
@@ -122,8 +127,7 @@ def listing(request, listing_id):
                 if "Add" in request.POST.get("status"):
                     watchlist = Watchlist(
                     user=User.objects.get(username=request.user),
-                    listing=Listing.objects.get(pk=listing_id),
-                    isactive=True)
+                    listing=Listing.objects.get(pk=listing_id))
                     watchlist.save()
                     return HttpResponseRedirect(reverse('listingpage', kwargs={'listing_id':listing_id}))
                 else:
@@ -131,8 +135,9 @@ def listing(request, listing_id):
                     user = User.objects.get(username=request.user)
                     try:
                         watchlist = Watchlist.objects.get(user=user.pk, listing=listing.id)
-                        watchlist.isactive = False #IS NOT SETTING FALSE
-                        return HttpResponse(watchlist)
+                        if watchlist is not None:
+                            watchlist.delete()
+                            return HttpResponseRedirect(reverse('listingpage', kwargs={'listing_id':listing_id}))
                     except ObjectDoesNotExist:
                         watch = None
 
@@ -149,47 +154,33 @@ def bidding(request, listing_id):
             amount=request.POST.get("amount"))
             newbid.save()
             return HttpResponseRedirect(reverse('listingpage', kwargs={'listing_id':listing_id}))
+
+
+@login_required
+def watch(request):
+    if request.user.is_authenticated:
+        if request.method == "GET":
+            userWatchList = Watchlist.objects.all().filter(user=request.user)
+            return render(request, "auctions/watchpage.html", {
+                "watchlist": userWatchList
+            })
+        else:
+            return HttpResponse("Operation not permitted.")
+    else:
+        return HttpResponseRedirect(reverse("login"))
     
 @login_required
-def watch(request, listing_id):
+def closeListing(request, listing_id):
     if request.user.is_authenticated:
         if request.method == "POST":
-            if request.POST.get("status") is not None and "Add" in request.POST.get("status"):
-                watchlist = Watchlist(
-                user=User.objects.get(username=request.user),
-                listing=Listing.objects.get(pk=listing_id),
-                isactive=True)
-                watchlist.save()
-                return render(request, "auctions/listingpage.html", {
-                    "user": request.user,
-                    "listing": watchlist,
-                    "isWatching": watchlist.isactive
-                })
-            else:
-                listing = Listing.objects.get(pk=listing_id)
-                user = User.objects.get(username=request.user)
-                try:
-                    watchlist = Watchlist.objects.get(user=user.pk, listing=listing.id)
-                    watchlist.isactive = False
-                except ObjectDoesNotExist:
-                    watch = None
-
-                return render(request, "auctions/listingpage.html", {
-                    "user": user,
-                    "listing": listing,
-                    "isWatching": watchlist.isactive
-                })
-        else:
-            user=User.objects.get(username=request.user),
-            listing=Listing.objects.get(pk=request.POST.get("listing_id"))
             try:
-                watch=Watchlist.objects.get(user=user.username)
+                listing=Listing.objects.filter(pk=listing_id).first()
+                bids=Bid.objects.all().filter(listing=listing_id)
+                if listing is not None:
+                    listing.winner = max(bids, key=lambda bidder: bidder.amount).user.username
+                    listing.save()
+                return HttpResponseRedirect(reverse('listingpage', kwargs={'listing_id':listing_id}))
             except ObjectDoesNotExist:
-                watch = None
-            return render(request, "auctions/listingpage.html", {
-                    "user": user,
-                    "listing": listing,
-                    "isWatching": watch.isactive
-                })
+                         return HttpResponse("Listing not found.")
     else:
         return HttpResponseRedirect(reverse("login"))
